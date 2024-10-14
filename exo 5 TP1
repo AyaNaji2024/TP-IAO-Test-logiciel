@@ -1,0 +1,6 @@
+1.Non le couplage n'est pas necessaire.Pour diminuer le couplage entre la classe Calendrier et la classe Personne, une solution classique est d’appliquer le principe de l'inversion de dépendance en introduisant une interface ou un type plus général. 
+2.L'interface Ipersonne contiendra toutes les méthodes contenus dans la classe Personne.
+pour la méthode add elle aura comme input une interface Ipersonne p à la place d'un objet de type Personne.
+3.Il faut ajouter à l'interface Ipersonne une méthode pour l'envoi d'un message.
+4.Les éléments en commun entre les deux interfaces sont les méthodes de calcul d'age et d'extraction de date de naissance.
+6.Le principe SOLID qui n'a pas été vérifié est celui du Single Responsibility Principle (SRP).
