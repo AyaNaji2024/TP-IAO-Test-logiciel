@@ -1,0 +1,145 @@
+exo1 
+1.Le principe du SOLID non respecté est celui du Single Responsibility Principle (SRP), car la classe facture se charge de plusieurs fonctionnalités à la fois.
+2.Justification de choix: La classe "produit" s'occupe de tout ce qui concerne le produit, la classe "facture" a son rôle s'occupe de la facturation et du calcul des totaux
+au temps où la classe "impression_facture" ne s'occupe que de l'impression des factures et "enregistrer_facture"ne s'occupe que de l'enregistrement de la facture.
+3.
+***La classe Produit:
+public class Produit {
+    private String libele;
+    private double prix;
+
+    public Produit() {
+    }
+
+    public String getLibele() {
+        return libele;
+    }
+
+    public double getPrix() {
+        return prix;
+    }
+
+    public void setLibele(String libele) {
+        this.libele = libele;
+    }
+
+    public void setPrix(double prix) {
+        this.prix = prix;
+    }
+
+    @Override
+    public String toString() {
+        return "Produit{" +
+                "libele='" + libele + '\'' +
+                ", prix=" + prix +
+                '}';
+    }
+} 
+
+***La classe Facture:
+import java.util.HashMap;
+import java.util.Map;
+
+public class Facture {
+    private int id;
+    private HashMap<Produit, Integer> produits;
+    private static double TVA;
+
+    public Facture(int id) {
+        this.id = id;
+        this.produits = new HashMap<>();
+    }
+
+    public static double getTVA() {
+        return TVA;
+    }
+
+    public static void setTVA(double TVA) {
+        Facture.TVA = TVA;
+    }
+    public void addProduit(Produit produit, int quantité){
+         this.produits.put(produit, quantité);
+    }
+    public double getTotal(){
+        double total = 0;
+        for (Map.Entry mapentry : this.produits.entrySet()) {
+            total+= ((Produit)mapentry.getKey()).getPrix() * ((Double)mapentry.getValue());
+        }
+        return total;
+    }
+    public double getTotalTTC(){
+        return this.getTotal()*(1+this.TVA);
+    }
+}
+
+***La classe Impression_facture:
+import java.util.Map;
+
+public class Impression_facture {
+ public void imprimer(Facture facture){
+        double prix;
+        for (Map.Entry mapentry : facture.produits.entrySet()) {
+            prix = ((Produit)mapentry.getKey()).getPrix() * ((Double)mapentry.getValue());
+            System.out.println(mapentry.getKey() + "\t" + mapentry.getValue() + " : " +
+                    prix );
+        }
+        System.out.println("Prix = " + facture.getTotal());
+        System.out.println("PrixTTC = " + facture.getTotalTTC());
+    }
+}
+***La classe Enregistrer_facture:
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Map;
+
+public class Enregistrer_facture {
+
+ public void saveFacture(Facture facture) {
+        try {
+            // create a FileWriter object with the file name
+            String file = "Facture".concat(String.valueOf(this.id));
+            FileWriter writer = new FileWriter(file);
+            writer.write(this.id);
+            // write the string to the file
+            for (Map.Entry mapentry : facture.produits.entrySet()) {
+                writer.write(mapentry.getKey().toString() + "\t" + mapentry.getValue().toString() );
+            }
+            writer.write("Prix = " + facture.getTotal());
+            writer.write("PrixTTC = " + tfacture.getTotalTTC());
+            // close the writer
+            writer.close();
+
+            System.out.println("Successfully wrote text to file.");
+
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+}
+
+Classe Main pour les tests:
+
+public class Main {
+    public static void main(String[] args) {
+        
+        Produit produit1 = new Produit();
+        produit1.setLibele("Laptop");
+        produit1.setPrix(1000.00);
+
+        Produit produit2 = new Produit();
+        produit2.setLibele("Smartphone");
+        produit2.setPrix(500.00);
+
+        Facture facture = new Facture(1);
+        facture.addProduit(produit1, 2);
+        facture.addProduit(produit2, 3);
+
+    
+        Impression_facture impression = new Impression_facture();
+        impression.imprimer(facture);
+
+        Enregistrer_facture enregistrement = new Enregistrer_facture();
+        enregistrement.saveFacture(facture);
+    }
+}
