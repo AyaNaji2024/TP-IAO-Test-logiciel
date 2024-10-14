@@ -1,0 +1,131 @@
+exo2:
+
+1. Le principe SOLID qui n'est pas respecté ici c'est Open-Closed Principle (OCP).
+2. Afin de pouvoir extensier du code sans changer le code de la classe "compte" on a rendu cette classe abstraite et hérité de cette dernière. grace à cette implémentation on pourra changer 
+ou ajouter 
+du code sans problème en cas d'ajout par exemple d'un nouveau type de comptes
+3. Implémentation de la solution
+***Classe Operation (inchangée)
+public class Operation {
+    private double montant;
+    private TypeOperation typeOperation;
+
+    public Operation(double montant, TypeOperation typeOperation) {
+        this.montant = montant;
+        this.typeOperation = typeOperation;
+    }
+
+    public double getMontant() {
+        return montant;
+    }
+
+    public TypeOperation getTypeOperation() {
+        return typeOperation;
+    }
+
+    @Override
+    public String toString() {
+        return "Operation{" +
+                "montant=" + montant +
+                ", typeOperation=" + typeOperation +
+                '}';
+    }
+}
+***Classe abstraite Compte
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class Compte {
+    protected String id;
+    protected String dateCreation;
+    protected double montant;
+    protected List<Operation> operations;
+
+    public Compte(String id, String dateCreation) {
+        this.id = id;
+        this.dateCreation = dateCreation;
+        this.montant = 0;
+        this.operations = new ArrayList<>();
+    }
+
+    public abstract boolean addOperation(Operation operation);
+
+    public double getMontant() {
+        return montant;
+    }
+
+    public List<Operation> getOperations() {
+        return operations;
+    }
+}
+***Classe CompteCourant
+public class CompteCourant extends Compte {
+
+    public CompteCourant(String id, String dateCreation) {
+        super(id, dateCreation);
+    }
+
+    @Override
+    public boolean addOperation(Operation operation) {
+        if (operation.getTypeOperation() == TypeOperation.Debit) {
+            montant += operation.getMontant();
+            operations.add(operation);
+            return true;
+        } else {
+            if (montant >= operation.getMontant()) {
+                montant -= operation.getMontant();
+                operations.add(operation);
+                return true;
+            }
+            return false;
+        }
+    }
+}
+***classe CompteEpargne
+import java.time.LocalDate;
+
+public class CompteEpargne extends Compte {
+
+    public CompteEpargne(String id, String dateCreation) {
+        super(id, dateCreation);
+    }
+
+    @Override
+    public boolean addOperation(Operation operation) {
+        if (operation.getTypeOperation() == TypeOperation.Debit) {
+            montant += operation.getMontant() * 0.05;
+            operations.add(operation);
+            return true;
+        } else {
+            int anneeCreation = Integer.parseInt(dateCreation.split("/")[2]);
+            if (montant >= operation.getMontant() * 0.1 &&
+                    LocalDate.now().getYear() > anneeCreation) {
+                montant -= operation.getMontant() * 0.1;
+                operations.add(operation);
+                return true;
+            }
+            return false;
+        }
+    }
+}
+
+***Test de l’application
+public class Main {
+    public static void main(String[] args) {
+        Compte compteCourant = new CompteCourant("123", "10/10/2022");
+        Compte compteEpargne = new CompteEpargne("456", "01/01/2020");
+
+        Operation debit = new Operation(100, TypeOperation.Debit);
+        Operation credit = new Operation(50, TypeOperation.Credit);
+
+        System.out.println("Ajout opération sur compte courant : " + compteCourant.addOperation(debit));
+        System.out.println("Ajout opération sur compte courant : " + compteCourant.addOperation(credit));
+        System.out.println("Montant du compte courant : " + compteCourant.getMontant());
+
+        System.out.println("Ajout opération sur compte épargne : " + compteEpargne.addOperation(debit));
+        System.out.println("Ajout opération sur compte épargne : " + compteEpargne.addOperation(credit));
+        System.out.println("Montant du compte épargne : " + compteEpargne.getMontant());
+    }
+}
+
+ 
