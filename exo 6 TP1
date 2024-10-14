@@ -1,0 +1,111 @@
+1.
+public class ValidationAge {
+ public boolean peutBoireAlcool(int age, String region) {
+switch (region.toLowerCase()) {
+            case "region1":
+                return age>=18 ;
+		break;
+            case "region2":
+      
+                return age>=14 ;
+		break;
+
+
+}
+ public boolean peutUtiliserFesseBouk(int age, String region) {
+switch (region.toLowerCase()) {
+            case "region1":
+                return age>=13 ;
+		break;
+            case "region2":
+      
+                return age>=15 ;
+		break;
+}
+ public boolean peutEtreEluMaire(int age, String region) {
+switch (region.toLowerCase()) {
+            case "region1":
+                return age>=21 ;
+		break;
+            case "region2":
+      
+                return age>=19 ;
+		break;
+}
+
+}
+***La classe Main:
+public class Main {
+    public static void main(String[] args) {
+        ValidationAge validation = new ValidationAge();
+
+        // Tests avec différentes régions
+        System.out.println("Peut boire alcool en region1 : " + validation.peutBoireAlcool(15, "region1")); // true
+        System.out.println("Peut utiliser FesseBouk en region2 : " + validation.peutUtiliserFesseBouk(14, "region2")); // false
+        System.out.println("Peut être élu maire en region3 : " + validation.peutEtreEluMaire(20, "region3")); // true
+        System.out.println("Peut boire alcool sans région (par défaut) : " + validation.peutBoireAlcool(17, "")); // false
+    }
+}
+
+2.Non, elle ne respecte pas les principes SOLID et spécifiquement le principe d'ouverture/fermeture.
+Solution:
+**Étape 1 : Définir une Interface ValidationRegion
+public interface ValidationRegion {
+    boolean peutBoireAlcool(int age);
+    boolean peutUtiliserFesseBouk(int age);
+    boolean peutEtreEluMaire(int age);
+}
+**Étape 2 : Implémenter des classes spécifiques à chaque région
+public class ValidationRegion2 implements ValidationRegion {
+    @Override
+    public boolean peutBoireAlcool(int age) {
+        return age >= 14;
+    }
+
+    @Override
+    public boolean peutUtiliserFesseBouk(int age) {
+        return age >= 15;
+    }
+
+    @Override
+    public boolean peutEtreEluMaire(int age) {
+        return age >= 19;
+    }
+}
+public class ValidationRegion1 implements ValidationRegion {
+    @Override
+    public boolean peutBoireAlcool(int age) {
+        return age >= 18;
+    }
+
+    @Override
+    public boolean peutUtiliserFesseBouk(int age) {
+        return age >= 13;
+    }
+
+    @Override
+    public boolean peutEtreEluMaire(int age) {
+        return age >= 21;
+    }
+}
+**Étape 3 : Modifier la classe principale pour choisir la bonne validation
+public class ValidationAge {
+    private ValidationRegion validationRegion;
+
+    // Le constructeur prend en paramètre la région
+    public ValidationAge(ValidationRegion validationRegion) {
+        this.validationRegion = validationRegion;
+    }
+
+    public boolean peutBoireAlcool(int age) {
+        return validationRegion.peutBoireAlcool(age);
+    }
+
+    public boolean peutUtiliserFesseBouk(int age) {
+        return validationRegion.peutUtiliserFesseBouk(age);
+    }
+
+    public boolean peutEtreEluMaire(int age) {
+        return validationRegion.peutEtreEluMaire(age);
+    }
+}
