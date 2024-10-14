@@ -1,0 +1,118 @@
+1.Le principe SOLID non respecté est celui du: Dependency Inversion Principle (DIP).
+2.Au lieu que le compte universitaire dépend des classes et soit fortement liés à elles, on a ajouté une interface afin de remédier à ce problème.Maintenant le compte universitaire ne dépend 
+que de l'interface et non des classes.
+3.
+***Interface Ipersonne
+package ID;
+
+public interface Ipersonne {
+    String genererLogin();
+}
+***Classe abstraite Personne
+package ID;
+
+public abstract class Personne implements Ipersonne {
+    protected String nom;
+    protected String prenom;
+
+    public Personne(String nom, String prenom) {
+        this.nom = nom;
+        this.prenom = prenom;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+}
+***Classe Etudiant
+package ID;
+
+public class Etudiant extends Personne {
+    private Integer numero;
+
+    public Etudiant(String nom, String prenom, Integer numero) {
+        super(nom, prenom);
+        this.numero = numero;
+    }
+
+    public Integer getNumero() {
+        return numero;
+    }
+
+    @Override
+    public String genererLogin() {
+        return prenom.charAt(0) + nom + "usms.ac.ma";
+    }
+}
+***Classe Enseignant
+package ID;
+
+public class Enseignant extends Personne {
+    private String grade;
+
+    public Enseignant(String nom, String prenom, String grade) {
+        super(nom, prenom);
+        this.grade = grade;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    @Override
+    public String genererLogin() {
+        return prenom + nom + grade + "usms.ma";
+    }
+}
+***Classe CompteUniversitaire
+package ID;
+
+public class CompteUniversitaire {
+    private String login;
+
+    public void setLogin(Ipersonne personne) {
+        this.login = personne.genererLogin();
+    }
+
+    public String getLogin() {
+        return login;
+    }
+}
+package ID;
+
+public class Main {
+    public static void main(String[] args) {
+        // Création des objets Etudiant et Enseignant
+        Etudiant etudiant1 = new Etudiant("Dupont", "Jean", 123);
+        Etudiant etudiant2 = new Etudiant("Durand", "Alice", 456);
+
+        Enseignant enseignant1 = new Enseignant("Martin", "Sophie", "Professeur");
+        Enseignant enseignant2 = new Enseignant("Lemoine", "Paul", "Maître de Conférences");
+
+        // Tests de génération de logins pour les étudiants
+        CompteUniversitaire compteEtu1 = new CompteUniversitaire();
+        compteEtu1.setLogin(etudiant1);
+        System.out.println("Login Etudiant 1: " + compteEtu1.getLogin());
+
+        CompteUniversitaire compteEtu2 = new CompteUniversitaire();
+        compteEtu2.setLogin(etudiant2);
+        System.out.println("Login Etudiant 2: " + compteEtu2.getLogin());
+
+        // Tests de génération de logins pour les enseignants
+        CompteUniversitaire compteEns1 = new CompteUniversitaire();
+        compteEns1.setLogin(enseignant1);
+        System.out.println("Login Enseignant 1: " + compteEns1.getLogin());
+
+        CompteUniversitaire compteEns2 = new CompteUniversitaire();
+        compteEns2.setLogin(enseignant2);
+        System.out.println("Login Enseignant 2: " + compteEns2.getLogin());
+
+        // Vérification de la cohérence des données
+        System.out.println("Nom de l'étudiant 1: " + etudiant1.getNom());
+        System.out.println("Grade de l'enseignant 2: " + enseignant2.getGrade());
+    }
+}
